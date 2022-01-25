@@ -8,5 +8,6 @@
 	} ,
 	"ip_blacklist": [
 		"1.2.3.4"
-	]
+	] ,
+	"ip_info_token": "asdf"
 }
