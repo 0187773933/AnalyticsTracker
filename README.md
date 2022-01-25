@@ -1,15 +1,16 @@
 # Analytics Tracking Server
 
-```
-cp config_example.json config.json
-```
+## Setup
 
-- `nano config.json`
-- `./dockerBuild.sh`
-- `./dockerRun.sh`
+1. `cp config_example.json config.json`
+2. `nano config.json`
+3. `./dockerBuild.sh`
+4. `./dockerRun.sh`
 
 
-- `uuid`
+## Example Usage
+- Generate Some UUID `uuid`
+- Add to some HTML
 - `<img src='https://ta.example.com/t/$SOME_UUID' alt=''>`
 - or
 ```
@@ -20,4 +21,4 @@ try {
 	document.body.appendChild( img_1 );
 } catch( e ) {}
 ```
-- https://ta.example.com/a/$SOME_UUID
+- View Results : https://ta.example.com/a/$SOME_UUID
