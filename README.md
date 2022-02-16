@@ -6,7 +6,15 @@
 2. `nano config.json`
 3. `./dockerBuild.sh`
 4. `./dockerRun.sh`
-
+5. Configure Caddy Reverse Proxy :
+```
+ta.example.org {
+        reverse_proxy localhost:9337 {
+                header_up Host {upstream_hostport}
+                header_up X-Forwarded-Host {host}
+        }
+}
+```
 
 ## Example Usage
 - Generate Some UUID `uuid`
