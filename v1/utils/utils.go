@@ -2,9 +2,9 @@ package utils
 
 import (
 	"fmt"
-    "encoding/json"
-    "io/ioutil"
-    server "analyticstracker/v1/server"
+	"encoding/json"
+	"io/ioutil"
+	server "analyticstracker/v1/server"
 )
 
 func ReadConfig( config_path string ) ( config server.ServerConfig ) {
