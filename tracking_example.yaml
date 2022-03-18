@@ -1,0 +1,13 @@
+host: https://ta.example.org
+items:
+  Title-1:
+    uuid: title-1-uuid
+  Title-2:
+    uuid: title-2-uuid
+  Title-3:
+    uuid: title-3-uuid
+redis:
+  "host": "localhost"
+  "port": "6379"
+  "db": 0
+  "password": ""
