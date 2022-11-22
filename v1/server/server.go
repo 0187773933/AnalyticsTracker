@@ -23,6 +23,21 @@ import (
 
 func GetRedisConnection( host string , port string , db int , password string ) ( redis_client redis_manager.Manager ) {
 	redis_client.Connect( fmt.Sprintf( "%s:%s" , host , port ) , db , password )
+	// TODO ===
+	// https://stackoverflow.com/questions/49910285/redis-dial-tcp-redis-address-connect-connection-refused#49910392
+	// redis := &redis.Pool{
+	// 	MaxActive: idleConnections,
+	// 	MaxIdle:   idleConnections,
+	// 	Wait:      true,
+	// 	Dial: func() (redis.Conn, error) {
+	// 		c, err := redis.Dial("tcp", address, options...)
+	// 		for retries := 0; err != nil && retries < 5; retries++ {
+	// 			time.Sleep((50 << retries) * time.Millisecond)
+	// 			c, err = redis.Dial("tcp", address, options...)
+	// 		}
+	// 		return c, err
+	// 	},
+	// }
 	return
 }
 
@@ -177,10 +192,10 @@ func NewSlice(n []int) *Slice {
 }
 
 func ReverseInts( input []int ) []int {
-    if len(input) == 0 {
-        return input
-    }
-    return append(ReverseInts(input[1:]), input[0])
+	if len(input) == 0 {
+		return input
+	}
+	return append(ReverseInts(input[1:]), input[0])
 }
 
 func New( config types.ConfigFile ) ( app *fiber.App ) {
@@ -215,6 +230,16 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 	app.Get( "/t/:id" , func( fiber_context *fiber.Ctx ) ( error ) {
 		id := fiber_context.Params( "id" )
 		ip := fiber_context.IP()
+		ips := fiber_context.IPs()
+		if ip == "127.0.0.1" {
+			if len( ips ) > 0 {
+				ip = ips[ 0 ]
+			}
+		} else if ip == "172.17.0.1" {
+			if len( ips ) > 0 {
+				ip = ips[ 0 ]
+			}
+		}
 		global_total_key := fmt.Sprintf( "ANALYTICS.%s.TOTAL" , id )
 		global_ips_key := fmt.Sprintf( "ANALYTICS.%s.IPS" , id )
 		global_records_key := fmt.Sprintf( "ANALYTICS.%s.RECORDS" , id )
