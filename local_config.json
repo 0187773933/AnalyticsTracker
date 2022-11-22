@@ -1,0 +1,16 @@
+{
+	"server_port": "9337" ,
+	"server_api_key": "a4149e95dbf049b6927945e819ae0ac9" ,
+	"time_zone": "America/New_York" ,
+	"redis": {
+		"host": "0.0.0.0" ,
+		"port": "6379" ,
+		"db": 3
+	} ,
+	"ip_blacklist": [
+		"74.140.161.64" ,
+		"208.38.225.72" ,
+		"208.38.225.121"
+	] ,
+	"ip_info_token": "ff870afef39e54"
+}

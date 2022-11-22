@@ -1,16 +1,23 @@
 package utils
 
 import (
+	// "os"
 	"fmt"
-	"encoding/json"
 	"io/ioutil"
-	server "analyticstracker/v1/server"
+	"encoding/json"
+	// "path/filepath"
+	// "strconv"
+	// "context"
+	// "time"
+	// "strings"
+	// redis_lib "github.com/go-redis/redis/v7"
+	// redis "github.com/0187773933/RedisManagerUtils/manager"
+	types "analyticstracker/v1/types"
 )
 
-func ReadConfig( config_path string ) ( config server.ServerConfig ) {
-	content , err := ioutil.ReadFile( config_path )
-	if err != nil { fmt.Println( "Error when opening file: " , err ) }
-	err = json.Unmarshal( content , &config )
-	if err != nil { fmt.Println( "Error during Unmarshal(): " , err ) }
+func ParseConfig( file_path string ) ( result types.ConfigFile ) {
+	file_data , _ := ioutil.ReadFile( file_path )
+	err := json.Unmarshal( file_data , &result )
+	if err != nil { fmt.Println( err ) }
 	return
 }
