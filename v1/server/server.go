@@ -106,6 +106,10 @@ func RedisMulti( redis redis_manager.Manager , uuids []string ) ( results Custom
 	// aka .Result() can be called once the pipe.Exec() is finished
 	// you have to know the type each pipe.Function() will return before hand , so you know what type of bins to create
 	// TODO = Add Name if Set
+
+	// could make just an Interface{}
+	// then it doesn't matter the type
+	// but still here , we have to have a custom Redis->Multi() order
 	var ones []*redis_lib.StringCmd
 	var twos []*redis_lib.StringSliceCmd
 	var threes []*redis_lib.StringSliceCmd
@@ -198,6 +202,18 @@ func ReverseInts( input []int ) []int {
 	return append(ReverseInts(input[1:]), input[0])
 }
 
+func CountUniqueViewsInRecords( records []string ) ( result int ) {
+	ip_map := map[string]int{}
+	for _ , record := range records {
+		ip_address := strings.Split( record , " === " )[ 2 ]
+		if _ , exists := ip_map[ ip_address ]; exists == false {
+			ip_map[ ip_address ] = 1
+		}
+	}
+	result = len( ip_map )
+	return
+}
+
 func New( config types.ConfigFile ) ( app *fiber.App ) {
 	app = fiber.New()
 	ip_addresses := GetLocalIPAddresses()
@@ -231,12 +247,15 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 		id := fiber_context.Params( "id" )
 		ip := fiber_context.IP()
 		ips := fiber_context.IPs()
+		// fmt.Println( ip )
 		if ip == "127.0.0.1" {
 			if len( ips ) > 0 {
+				fmt.Println( ips )
 				ip = ips[ 0 ]
 			}
 		} else if ip == "172.17.0.1" {
 			if len( ips ) > 0 {
+				fmt.Println( ips )
 				ip = ips[ 0 ]
 			}
 		}
@@ -367,7 +386,8 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 	<table id="result_table">
 		<tr>
 			<th>UUID</th>
-			<th>Total Views</th>
+			<th>Total</th>
+			<th>Unique</th>
 			<th>Name</th>
 			<th>Latest Record</th>
 		</tr>
@@ -387,17 +407,20 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 		reverse_sorted := ReverseInts( sorted_indexes_by_totals.indexes )
 		// fmt.Println( "Lengths Match ? ===" , len( uuids ) , len( redis_results.Totals ) , len( redis_results.Names ) , len( redis_results.Records ) )
 
-		// TODO === count unique views from looking through records
-
 		// Populate HTML Table with Values
-		for i , sorted_index := range reverse_sorted {
+		for _ , sorted_index := range reverse_sorted {
 			// html_string += fmt.Sprintf( "\t\t<li>%s === %s === %s</li>\n" , uuid , redis_results.Totals[ i ] , redis_results.Records[ i ][ ( len( redis_results.Records[ i ] ) - 1 ) ] )
 			// fmt.Println( i , sorted_index , redis_results.Totals[ sorted_index ] , redis_results.Names[ sorted_index ] )
 			uuid_link := fmt.Sprintf( "<a target=\"_blank\" href=\"%s/a/%s\">%s</a>" , config.ServerBaseUrl , uuids[ sorted_index ] , uuids[ sorted_index ] )
 			// fmt.Println( uuid_link )
+
+			unique_views := CountUniqueViewsInRecords( redis_results.Records[ sorted_index ] )
+			// fmt.Println( "Unique Views ===" , unique_views )
+
 			html_string += fmt.Sprintf( "\t\t<tr>\n" )
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuid_link )
 			html_string += fmt.Sprintf( "\t\t\t<td>%d</td>\n" , redis_results.Totals[ sorted_index ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%d</td>\n" , unique_views )
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Names[ sorted_index ] )
 			if len( redis_results.Records[ sorted_index ] ) > 0 {
 				html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ sorted_index ][ ( len( redis_results.Records[ sorted_index ] ) - 1 ) ] )
