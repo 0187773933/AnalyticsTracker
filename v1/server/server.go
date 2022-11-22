@@ -384,7 +384,9 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuid_link )
 			html_string += fmt.Sprintf( "\t\t\t<td>%d</td>\n" , redis_results.Totals[ sorted_index ] )
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Names[ sorted_index ] )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ sorted_index ][ ( len( redis_results.Records[ sorted_index ] ) - 1 ) ] )
+			if len( redis_results.Records[ sorted_index ] ) > 0 {
+				html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ sorted_index ][ ( len( redis_results.Records[ sorted_index ] ) - 1 ) ] )
+			}
 			html_string += fmt.Sprintf( "\t\t</tr>\n" )
 		}
 
