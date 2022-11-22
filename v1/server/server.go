@@ -378,8 +378,10 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 		for i , sorted_index := range reverse_sorted {
 			// html_string += fmt.Sprintf( "\t\t<li>%s === %s === %s</li>\n" , uuid , redis_results.Totals[ i ] , redis_results.Records[ i ][ ( len( redis_results.Records[ i ] ) - 1 ) ] )
 			fmt.Println( i , sorted_index , redis_results.Totals[ sorted_index ] , redis_results.Names[ sorted_index ] )
+			uuid_link := fmt.Sprintf( "<a target=\"_blank\" href=\"%s/a/%s\">%s</a>" , config.ServerBaseUrl , uuids[ sorted_index ] , uuids[ sorted_index ] )
+			fmt.Println( uuid_link )
 			html_string += fmt.Sprintf( "\t\t<tr>\n" )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuids[ sorted_index ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuid_link )
 			html_string += fmt.Sprintf( "\t\t\t<td>%d</td>\n" , redis_results.Totals[ sorted_index ] )
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Names[ sorted_index ] )
 			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ sorted_index ][ ( len( redis_results.Records[ sorted_index ] ) - 1 ) ] )

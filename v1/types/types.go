@@ -8,6 +8,7 @@ type RedisConfig struct {
 }
 
 type ConfigFile struct {
+	ServerBaseUrl string `json:"server_base_url"`
 	ServerPort string `json:"server_port"`
 	ServerAPIKey string `json:"server_api_key"`
 	TimeZone string `json:"time_zone"`

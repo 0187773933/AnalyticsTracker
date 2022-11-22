@@ -1,4 +1,5 @@
 {
+	"server_base_url": "http://localhost:9337" ,
 	"server_port": "9337" ,
 	"server_api_key": "a4149e95dbf049b6927945e819ae0ac9" ,
 	"time_zone": "America/New_York" ,
