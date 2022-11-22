@@ -4,6 +4,9 @@ import (
 	"os"
 	"fmt"
 	"time"
+	"sort"
+	// index_sort "github.com/mkmik/argsort"
+	"strconv"
 	"net"
 	net_url "net/url"
 	"strings"
@@ -75,7 +78,7 @@ func RedisGetMulti( redis redis_manager.Manager , uuids []string ) ( result []st
 }
 
 type CustomMulti struct {
-	Totals []string
+	Totals []int
 	IPS [][]string
 	Records [][]string
 	Names []string
@@ -108,8 +111,10 @@ func RedisMulti( redis redis_manager.Manager , uuids []string ) ( results Custom
 	// unwrap the results
 	for _ , e := range ones {
 		value , _ := e.Result()
-		results.Totals = append( results.Totals , value )
+		int_value , _ := strconv.Atoi( value )
+		results.Totals = append( results.Totals , int_value )
 	}
+	// fmt.Println( "original , original totals" , results.Totals )
 	for _ , e := range twos {
 		value , _ := e.Result()
 		results.IPS = append( results.IPS , value )
@@ -150,6 +155,32 @@ func GetFormattedTimeString() ( result string ) {
 	time_part := fmt.Sprintf( "%02d:%02d:%02d%s" , time_object.Hour() , time_object.Minute() , time_object.Second() , milliseconds )
 	result = fmt.Sprintf( "%s === %s" , date_part , time_part )
 	return
+}
+
+
+type Slice struct {
+	sort.IntSlice
+	indexes []int
+}
+
+func (s Slice) Swap(i, j int) {
+	s.IntSlice.Swap(i, j)
+	s.indexes[i], s.indexes[j] = s.indexes[j], s.indexes[i]
+}
+
+func NewSlice(n []int) *Slice {
+	s := &Slice{IntSlice: sort.IntSlice(n), indexes: make([]int, len(n))}
+	for i := range s.indexes {
+		s.indexes[i] = i
+	}
+	return s
+}
+
+func ReverseInts( input []int ) []int {
+    if len(input) == 0 {
+        return input
+    }
+    return append(ReverseInts(input[1:]), input[0])
 }
 
 func New( config types.ConfigFile ) ( app *fiber.App ) {
@@ -332,14 +363,26 @@ func New( config types.ConfigFile ) ( app *fiber.App ) {
 		html_string_suffix := `	</table>
 </body>
 </html>`
-		for i , uuid := range uuids {
+		// Sort By Total Views
+		// wtf
+		var totals_copy []int
+		for _ , e := range redis_results.Totals {
+			totals_copy = append( totals_copy , e )
+		}
+		sorted_indexes_by_totals := NewSlice( totals_copy )
+		// sort.Sort( sorted_indexes_by_totals )
+		sort.Sort( sorted_indexes_by_totals )
+		reverse_sorted := ReverseInts( sorted_indexes_by_totals.indexes )
+		fmt.Println( sorted_indexes_by_totals.IntSlice , reverse_sorted )
+		fmt.Println( "Lengths Match ? ===" , len( uuids ) , len( redis_results.Totals ) , len( redis_results.Names ) , len( redis_results.Records ) )
+		for i , sorted_index := range reverse_sorted {
 			// html_string += fmt.Sprintf( "\t\t<li>%s === %s === %s</li>\n" , uuid , redis_results.Totals[ i ] , redis_results.Records[ i ][ ( len( redis_results.Records[ i ] ) - 1 ) ] )
-			// TODO === Sort By Total Views
+			fmt.Println( i , sorted_index , redis_results.Totals[ sorted_index ] , redis_results.Names[ sorted_index ] )
 			html_string += fmt.Sprintf( "\t\t<tr>\n" )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuid )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Totals[ i ] )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Names[ i ] )
-			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ i ][ ( len( redis_results.Records[ i ] ) - 1 ) ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , uuids[ sorted_index ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%d</td>\n" , redis_results.Totals[ sorted_index ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Names[ sorted_index ] )
+			html_string += fmt.Sprintf( "\t\t\t<td>%s</td>\n" , redis_results.Records[ sorted_index ][ ( len( redis_results.Records[ sorted_index ] ) - 1 ) ] )
 			html_string += fmt.Sprintf( "\t\t</tr>\n" )
 		}
 
